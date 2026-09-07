@@ -39,9 +39,9 @@ Multiple imputation was not performed. Multivariable analyses use complete cases
 
 ## Implementation-outcome data
 
-Implementation outcomes were summarised descriptively using outcome-specific eligible populations. The source counts for penetration and component-specific fidelity were manually derived and verified through reconciliation of the RS-DAA masterlist, the Klinik Kesihatan Pandamaran (Panda) treatment record and laboratory records. The repository contains only the verified aggregate counts and does not contain identifiable source records.
+Implementation outcomes were summarised descriptively using outcome-specific eligible populations. The source counts for penetration and component-specific fidelity were manually derived and verified through reconciliation of the RS-DAA masterlist, the Klinik Kesihatan Pandamaran treatment record and laboratory records. The repository contains only the verified aggregate counts and does not contain identifiable source records.
 
-Penetration was calculated as 84 enrolled participants among 92 eligible HCV antibody-positive PWUD who were offered RS-DAA (91.3%). The 94 individuals initially identified comprised 84 recorded in the RS-DAA masterlist, seven identified from the Panda treatment record and three from laboratory records. Two individuals did not meet the eligibility criteria, leaving 92 eligible individuals; eight of those eligible individuals followed the conventional standard-of-care pathway.
+Penetration was calculated as 84 enrolled participants among 92 eligible HCV antibody-positive PWUD who were offered RS-DAA (91.3%). The 94 individuals initially identified comprised 84 recorded in the RS-DAA masterlist, seven identified from the Klinik Kesihatan Pandamaran treatment record and three from laboratory records. Two individuals did not meet the eligibility criteria, leaving 92 eligible individuals; eight of those eligible individuals followed the conventional standard-of-care pathway.
 
 Component-specific fidelity was calculated using the applicable eligible population for each component:
 
