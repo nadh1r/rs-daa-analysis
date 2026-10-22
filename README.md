@@ -1,6 +1,6 @@
 # RS-DAA thesis: reproducible analytical workflow
 
-`RSDAA_Reviewer_Analysis.R` consolidates the analyses retained for the thesis comparison of rapid-start DAA treatment with historical standard of care. Exploratory analyses that were not retained are not part of this workflow. Raw participant data are supplied separately under the applicable access arrangements.
+`RSDAA_Reviewer_Analysis_v2.R` consolidates the analyses retained for the thesis comparison of rapid-start DAA treatment with historical standard of care. Exploratory analyses that were not retained are not part of this workflow. Raw participant data are supplied separately under the applicable access arrangements.
 
 ## Inputs and execution
 
@@ -33,8 +33,6 @@ Baseline summaries include age mean/SD and categorical frequencies/percentages. 
 
 The cascade reports antibody positivity, RNA testing, RNA detection, clinic eligibility, DAA initiation, completion, SVR assessment and achievement with stage-specific denominators. Descriptive initiation includes any recorded initiation, including historical initiations after 365 days; it is distinct from the primary 365-day event definition.
 
-Completion follows the source recorded completion status. Historical post-treatment intervals are calculated using **estimated completion at initiation plus 84 days**, because actual completion dates are unavailable in that workbook. Intervention intervals use recorded completion dates. This difference must remain disclosed in the operational definitions.
-
 The script applies the two source-date corrections confirmed during reconciliation, without modifying the workbook: historical source No 12 with initiation on 5 August 2023 has an SVR test date of 30 January 2024; source No 29 with initiation on 3 May 2024 has an SVR test date of 17 October 2024. Historical source numbers repeat between years, so cohort identity is not established by No alone.
 
 Tests beyond 168 days after completion are excluded: 16 historical SOC and two RS-DAA. Four historical tests at 83 days and nine RS-DAA tests at 75–81 days are retained under the study's operational classification and flagged separately. These early tests must not be described as satisfying a strict minimum of 12 weeks after completion. Results without an eligible assessment are not classified as virological failure. The expected operational cascade is 20 assessed/19 achieved historically and 34 assessed/31 achieved in RS-DAA; discrepancies trigger review rather than replacement with target counts.
@@ -51,28 +49,24 @@ Median initiation time is the first event time at which transformed incidence re
 
 The primary adjusted Cox model includes study group, age, employment, housing, marital status, HIV co-infection, current methadone, incarceration history, recent drug use and injecting history. Efron handling of ties is used. Scaled Schoenfeld-residual tests and plots assess proportional hazards. The 365-day hazard ratios are interpreted in light of the observed non-proportional hazards and do not establish a constant effect over follow-up.
 
-The same adjusted specification is fitted after administrative censoring at day 30. RMST analyses through day 365 include unadjusted and covariate-adjusted estimates of time remaining without initiation. Initiation rates and exact Poisson confidence limits are reported **per person-year**, not per 100 person-years.
-
+The same adjusted specification is fitted after administrative censoring at day 30. RMST analyses through day 365 include unadjusted and covariate-adjusted estimates of time remaining without initiation. Initiation rates and exact Poisson confidence limits are reported per person-year.
 Supplementary Cox models are explicitly defined:
 
 - Minimal: group, age, housing, current methadone, incarceration history and injecting history.
 - Full: the primary specification plus race, education, ATS, benzodiazepines, cannabis and other drug use.
-- Stratified: the primary specification with recent drug use as a stratum rather than a regression coefficient.
 
 Actual sample sizes, event counts and formulas are exported for every Cox model. Historical appendix statements referring to a 138-person cohort should not be used to describe these 118-person fits.
 
-IPTW uses the nine primary adjustment variables in a logistic propensity-score model. Stabilised weights are truncated at the pooled 1st and 99th percentiles. Outputs include propensity-score distributions, overlap histogram, weights before/after truncation, effective sample sizes, covariate balance, robust weighted Cox estimates an additionally adjusted weighted Cox model, and the appendix weighted Kaplan–Meier curve. Incomplete overlap and any residual covariate imbalance should be acknowledged. The appendix weighted Nelson–Aalen figure shows **untransformed cumulative hazard**, distinct from the main incidence figure.
+IPTW uses the nine primary adjustment variables in a logistic propensity-score model. Stabilised weights are truncated at the pooled 1st and 99th percentiles. Outputs include propensity-score distributions, overlap histogram, weights before/after truncation, effective sample sizes, covariate balance, and robust weighted Cox estimates an additionally adjusted weighted Cox model. Incomplete overlap and any residual covariate imbalance should be acknowledged. The appendix weighted Nelson–Aalen figure shows untransformed cumulative hazard, distinct from the main incidence figure.
 
 ## Implementation outcomes
 
 Penetration uses externally reconciled aggregate counts: 94 identified, two ineligible, 92 offered, 84 enrolled and eight following conventional SOC. Those aggregates are not inferred from the 84-person implementation worksheet. Bundled pretreatment assessment, 84/84, is a user-verified aggregate because that component is not a separate worksheet field.
 
-Other fidelity measures are calculated from the implementation worksheet after excluding REDCap numbers 3 and 73 and example row 99. REDCap number 66 is retained. MySejahtera is grouped with WhatsApp as telemedicine. The source yields community blood collection 73/84 and telemedicine 36/54. Among the 36 telemedicine participants, direct CHW delivery is 32, postal delivery one, and self-pickup three. Postal delivery is included within CHW-supported delivery under the study classification, giving **33/36 CHW-supported deliveries**; the source-mode breakdown remains in the audit. The script checks the participant linkage for the 54 consultation records against clinical initiation records. No composite fidelity score is calculated.
+Other fidelity measures are calculated from the implementation worksheet after excluding REDCap numbers 3 and 73 (invalid participants) and example row 99. MySejahtera is grouped with WhatsApp as telemedicine. The source yields community blood collection 73/84 and telemedicine 36/54. Among the 36 telemedicine participants, direct CHW delivery is 32, postal delivery one, and self-pickup three. Postal delivery is included within CHW-supported delivery under the study classification, giving 33/36 CHW-supported deliveries; the source-mode breakdown remains in the audit. The script checks the participant linkage for the 54 consultation records against clinical initiation records. No composite fidelity score is calculated.
 
 Seven-day feasibility and its exact binomial confidence interval are calculated among the 58 clinic-eligible RS-DAA participants; 14- and 30-day proportions are also exported.
 
 ## Outputs and confidentiality
 
 Outputs include both baseline tables, the full cascade, SVR timing audits, cohort checks, the main transformed figure, median bootstrap results, log-rank results, primary/supplementary/30-day models and diagnostics, rate and RMST results, implementation summaries and IPTW results/figure.
-
-**The output folder contains participant-level dates, source identifiers and an analysis RDS. It must remain private.** Do not upload raw workbooks, REDCap exports or record-level audits to a public repository. Publish only reviewed aggregate outputs. Configure `.gitignore` before placing data in the repository. This script does not remove sensitive records from existing Git history or change earlier repository files.
