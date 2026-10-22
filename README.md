@@ -1,117 +1,78 @@
-# RS-DAA Analysis
+# RS-DAA thesis: reproducible analytical workflow
 
-This repository contains the reproducible R analysis used in the main thesis evaluating rapid-start direct-acting antiviral treatment (RS-DAA) against the historical standard-of-care cohort.
+`RSDAA_Reviewer_Analysis.R` consolidates the analyses retained for the thesis comparison of rapid-start DAA treatment with historical standard of care. Exploratory analyses that were not retained are not part of this workflow. Raw participant data are supplied separately under the applicable access arrangements.
 
-## Main analysis script
+## Inputs and execution
 
-`RSDAA_thesis_appendix_analysis.R` is the definitive analysis script for the thesis appendix. It replaces the earlier separate control, intervention, combined, exploratory, RMST and IPTW scripts.
+Three local input files are required:
 
-The script performs:
+1. Historical control Excel workbook: worksheet 1 provides baseline and treatment data; worksheet 2 provides the reconciled SVR fields, matched to the same participants using the source IC field. Baseline covariates are not taken from worksheet 2.
+2. Intervention REDCap export, in Excel or CSV format, containing baseline and treatment-status events, including completion and SVR dates/status.
+3. Implementation Excel masterlist, worksheet `KK PANDAMARAN`, containing `Redcap No`, `Blood taken where`, `Mysejahtera/Whatsapp VC/Physical`, and `Meds`.
 
-- data cleaning and harmonisation for the prospective RS-DAA and historical standard-of-care cohorts;
-- baseline descriptive analysis;
-- HCV care-cascade analysis;
-- Nelson–Aalen cumulative-incidence estimation;
-- bootstrap confidence intervals for Nelson–Aalen-derived median initiation times;
-- log-rank comparison;
-- crude and adjusted Cox regression;
-- proportional-hazards diagnostics using scaled Schoenfeld residuals;
-- adjusted Cox analysis restricted to the first 30 days;
-- unadjusted and covariate-adjusted restricted mean survival time analysis; and
-- inverse probability of treatment weighting sensitivity analysis.
+Set `CONTROL_FILE`, `INTERVENTION_FILE`, `IMPLEMENTATION_FILE` and `OUTPUT_DIR` at the beginning of the script, or supply the environment variables `RSDAA_CONTROL_FILE`, `RSDAA_INTERVENTION_FILE`, `RSDAA_IMPLEMENTATION_FILE` and `RSDAA_OUTPUT_DIR`. Run the entire script in a clean R session. Do not run isolated sections against objects left by an earlier analysis.
 
-## Analysis populations
-
-The HCV-antibody-positive descriptive population is used for baseline characteristics and the care cascade.
-
-The primary modified intention-to-treat (mITT) cohort comprises participants who:
-
-1. had a positive HCV antibody result;
-2. had detectable HCV RNA;
-3. had a valid HCV antibody-test date; and
-4. remained eligible to initiate DAA through the participating clinic pathway.
-
-Participants with cirrhosis requiring specialist referral are excluded from the primary mITT cohort. The script constructs this cohort once and includes checks that stop execution if a participant identified as having cirrhosis enters any time-to-event, 30-day, RMST or IPTW analysis.
-
-## Missing data
-
-Multiple imputation was not performed. Multivariable analyses use complete cases for the variables required by the relevant model. Missing HCV antibody-test dates and treatment-initiation dates are not imputed.
-
-## Implementation-outcome data
-
-Implementation outcomes were summarised descriptively using outcome-specific eligible populations. The source counts for penetration and component-specific fidelity were manually derived and verified through reconciliation of the RS-DAA masterlist, the Klinik Kesihatan Pandamaran treatment record and laboratory records. The repository contains only the verified aggregate counts and does not contain identifiable source records.
-
-Penetration was calculated as 84 enrolled participants among 92 eligible HCV antibody-positive PWUD who were offered RS-DAA (91.3%). The 94 individuals initially identified comprised 84 recorded in the RS-DAA masterlist, seven identified from the Klinik Kesihatan Pandamaran treatment record and three from laboratory records. Two individuals did not meet the eligibility criteria, leaving 92 eligible individuals; eight of those eligible individuals followed the conventional standard-of-care pathway.
-
-Component-specific fidelity was calculated using the applicable eligible population for each component:
-
-- bundled pretreatment assessment: 84 of 84 enrolled participants;
-- community blood collection: 73 of 84 enrolled participants;
-- telemedicine consultation: 36 of 54 DAA initiators; and
-- CHW-supported medication delivery: 33 of 36 telemedicine initiators.
-
-No composite fidelity score was calculated because the components occurred at different pathway stages and did not share a common denominator. Seven-day feasibility and its exact binomial 95% confidence interval were calculated in R among the 58 participants eligible for clinic-based DAA initiation. The corresponding 14-day proportion was descriptive.
-
-## Software requirements
-
-The thesis analysis was conducted using R version 4.5.0. The script checks for the following packages:
-
-- `readxl`
-- `readr`
-- `dplyr`
-- `tidyr`
-- `stringr`
-- `lubridate`
-- `survival`
-- `survRM2`
-- `ggplot2`
-- `scales`
-- `broom`
-
-Install any missing packages before running the analysis:
+Install the required packages first:
 
 ```r
-install.packages(c(
-  "readxl", "readr", "dplyr", "tidyr", "stringr", "lubridate",
-  "survival", "survRM2", "ggplot2", "scales", "broom"
-))
+install.packages(c("readxl", "readr", "dplyr", "tidyr", "stringr", "lubridate",
+                   "survival", "survRM2", "ggplot2", "scales", "survminer"))
 ```
 
-## Running the analysis
+The thesis reported R 4.5.0. Each execution writes `sessionInfo.txt` with the versions actually used.
 
-1. Download or clone this repository.
-2. Open `RSDAA_thesis_appendix_analysis.R` in RStudio.
-3. At the beginning of the script, replace the two placeholder input paths with the locations of the control Excel workbook and intervention REDCap CSV export:
+## Populations and descriptive analyses
 
-```r
-CONTROL_FILE <- "path/to/control_masterlist.xlsx"
-INTERVENTION_FILE <- "path/to/redcap_intervention_export.csv"
-```
+The antibody-positive descriptive population comprises 168 participants: 84 historical SOC and 84 RS-DAA. It is used for the broader baseline table and care cascade. A second baseline table describes the final clinic-eligible, RNA-detected analysis population.
 
-4. Run the script from the beginning in a clean R session.
-5. Review the files produced in the `RSDAA_thesis_outputs` directory.
+The primary mITT cohort comprises 118 participants: 60 historical SOC and 58 RS-DAA. Twelve historical and eight RS-DAA participants with cirrhosis requiring specialist referral are excluded from this cohort. All time-to-event analyses use this cohort. Checks verify 52 historical and 54 RS-DAA initiation events within 365 days, and verify each fitted Cox model's actual participant and event counts. The 30-day analysis has 59 events. These checks validate calculated results; they do not set model estimates.
 
-The script uses a fixed random seed and 2,000 participant-level bootstrap replicates so that the bootstrap confidence intervals can be reproduced.
+Baseline summaries include age mean/SD and categorical frequencies/percentages. Age comparisons use Wilcoxon rank-sum tests. The broader table uses chi-squared or Fisher exact tests according to expected cell counts; the 118-person table uses Fisher exact tests for categorical variables, matching the parallel analysis. Baseline comparisons are descriptive and do not select adjustment covariates. There is no multiple imputation. Complete-case model counts are exported explicitly.
 
-## Reproducibility outputs
+## Care cascade and SVR classification
 
-The output directory contains analysis tables, figures and supporting audit files, including:
+The cascade reports antibody positivity, RNA testing, RNA detection, clinic eligibility, DAA initiation, completion, SVR assessment and achievement with stage-specific denominators. Descriptive initiation includes any recorded initiation, including historical initiations after 365 days; it is distinct from the primary 365-day event definition.
 
-- the cirrhosis-exclusion audit;
-- the locked mITT cohort counts;
-- baseline missingness;
-- Nelson–Aalen estimates and bootstrap medians;
-- Cox regression estimates and proportional-hazards diagnostics;
-- 30-day Cox results;
-- RMST results;
-- implementation outcomes;
-- IPTW balance and weighted estimates; and
-- `sessionInfo.txt`, documenting the R and package versions used.
+Completion follows the source recorded completion status. Historical post-treatment intervals are calculated using **estimated completion at initiation plus 84 days**, because actual completion dates are unavailable in that workbook. Intervention intervals use recorded completion dates. This difference must remain disclosed in the operational definitions.
 
-## Data confidentiality
+The script applies the two source-date corrections confirmed during reconciliation, without modifying the workbook: historical source No 12 with initiation on 5 August 2023 has an SVR test date of 30 January 2024; source No 29 with initiation on 3 May 2024 has an SVR test date of 17 October 2024. Historical source numbers repeat between years, so cohort identity is not established by No alone.
 
-The raw control and intervention datasets are not included in this repository. Do not upload identifiable participant data, names, record-level audit files or analysis outputs containing identifiers to a public repository. The `.gitignore` file should be configured to exclude raw data and generated output directories before any data are placed inside the local repository.
+Tests beyond 168 days after completion are excluded: 16 historical SOC and two RS-DAA. Four historical tests at 83 days and nine RS-DAA tests at 75–81 days are retained under the study's operational classification and flagged separately. These early tests must not be described as satisfying a strict minimum of 12 weeks after completion. Results without an eligible assessment are not classified as virological failure. The expected operational cascade is 20 assessed/19 achieved historically and 34 assessed/31 achieved in RS-DAA; discrepancies trigger review rather than replacement with target counts.
 
-## Repository status
+## Nelson–Aalen analysis and primary figure
 
-Earlier analysis scripts are superseded by `RSDAA_thesis_appendix_analysis.R`. Git retains the earlier versions in the repository history even after they are removed from the current file list.
+Cumulative hazard is estimated by summing event counts divided by the number at risk immediately before each event time. The main figure transforms that hazard to cumulative incidence using one minus the exponential of negative cumulative hazard. This is the transformed Nelson–Aalen estimate, rather than the complement of Kaplan–Meier.
+
+The main figure includes pointwise 95% confidence bands, the risk/cumulative-event table and the full 365-day horizon. It uses `survfit(stype = 2, ctype = 1, conf.type = "log")`, followed by the event transformation. These confidence limits correspond to normal limits on the Nelson–Aalen cumulative hazard transformed to the incidence scale, with the lower hazard bound constrained to zero. They are not bootstrap intervals or simultaneous confidence bands.
+
+Median initiation time is the first event time at which transformed incidence reaches 0.50. Percentile confidence intervals use 5,000 participant-level resamples with replacement within each study group, retaining group sample sizes, seed 20260817 and quantile type 6. The output reports valid medians, excluded repetitions and the percentage reaching the median. Missing bootstrap medians are disclosed rather than silently omitted. The log-rank test compares the overall initiation-time distributions.
+
+## Regression and sensitivity analyses
+
+The primary adjusted Cox model includes study group, age, employment, housing, marital status, HIV co-infection, current methadone, incarceration history, recent drug use and injecting history. Efron handling of ties is used. Scaled Schoenfeld-residual tests and plots assess proportional hazards. The 365-day hazard ratios are interpreted in light of the observed non-proportional hazards and do not establish a constant effect over follow-up.
+
+The same adjusted specification is fitted after administrative censoring at day 30. RMST analyses through day 365 include unadjusted and covariate-adjusted estimates of time remaining without initiation. Initiation rates and exact Poisson confidence limits are reported **per person-year**, not per 100 person-years.
+
+Supplementary Cox models are explicitly defined:
+
+- Minimal: group, age, housing, current methadone, incarceration history and injecting history.
+- Full: the primary specification plus race, education, ATS, benzodiazepines, cannabis and other drug use.
+- Stratified: the primary specification with recent drug use as a stratum rather than a regression coefficient.
+
+Actual sample sizes, event counts and formulas are exported for every Cox model. Historical appendix statements referring to a 138-person cohort should not be used to describe these 118-person fits.
+
+IPTW uses the nine primary adjustment variables in a logistic propensity-score model. Stabilised weights are truncated at the pooled 1st and 99th percentiles. Outputs include propensity-score distributions, overlap histogram, weights before/after truncation, effective sample sizes, covariate balance, robust weighted Cox estimates an additionally adjusted weighted Cox model, and the appendix weighted Kaplan–Meier curve. Incomplete overlap and any residual covariate imbalance should be acknowledged. The appendix weighted Nelson–Aalen figure shows **untransformed cumulative hazard**, distinct from the main incidence figure.
+
+## Implementation outcomes
+
+Penetration uses externally reconciled aggregate counts: 94 identified, two ineligible, 92 offered, 84 enrolled and eight following conventional SOC. Those aggregates are not inferred from the 84-person implementation worksheet. Bundled pretreatment assessment, 84/84, is a user-verified aggregate because that component is not a separate worksheet field.
+
+Other fidelity measures are calculated from the implementation worksheet after excluding REDCap numbers 3 and 73 and example row 99. REDCap number 66 is retained. MySejahtera is grouped with WhatsApp as telemedicine. The source yields community blood collection 73/84 and telemedicine 36/54. Among the 36 telemedicine participants, direct CHW delivery is 32, postal delivery one, and self-pickup three. Postal delivery is included within CHW-supported delivery under the study classification, giving **33/36 CHW-supported deliveries**; the source-mode breakdown remains in the audit. The script checks the participant linkage for the 54 consultation records against clinical initiation records. No composite fidelity score is calculated.
+
+Seven-day feasibility and its exact binomial confidence interval are calculated among the 58 clinic-eligible RS-DAA participants; 14- and 30-day proportions are also exported.
+
+## Outputs and confidentiality
+
+Outputs include both baseline tables, the full cascade, SVR timing audits, cohort checks, the main transformed figure, median bootstrap results, log-rank results, primary/supplementary/30-day models and diagnostics, rate and RMST results, implementation summaries and IPTW results/figure.
+
+**The output folder contains participant-level dates, source identifiers and an analysis RDS. It must remain private.** Do not upload raw workbooks, REDCap exports or record-level audits to a public repository. Publish only reviewed aggregate outputs. Configure `.gitignore` before placing data in the repository. This script does not remove sensitive records from existing Git history or change earlier repository files.
