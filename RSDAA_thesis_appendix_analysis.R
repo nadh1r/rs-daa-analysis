@@ -1124,11 +1124,8 @@ cox_minimal <- coxph(Surv(time_days, event) ~ group + Age + Housing +
  data = mitt, ties = "efron", x = TRUE)
 cox_full <- coxph(update(cox_formula, . ~ . + Race + Education + ATS + Benzos + Cannabis + Others),
  data = mitt, ties = "efron", x = TRUE)
-cox_stratified <- coxph(update(cox_formula,
- . ~ . - `Recent drug use` + strata(`Recent drug use`)),
- data = mitt, ties = "efron", x = TRUE)
 readr::write_csv(bind_rows(extract_cox_group(cox_minimal, "Minimal"),
- extract_cox_group(cox_full, "Full"), extract_cox_group(cox_stratified, "Stratified by recent drug use")),
+ extract_cox_group(cox_full, "Full")),
  file.path(OUTPUT_DIR, "cox_supplementary_results.csv"))
 rates_30 <- model_data_30 |> group_by(group) |>
  summarise(events = sum(event_30), person_days = sum(time_30),
@@ -1138,7 +1135,7 @@ rates_30 <- model_data_30 |> group_by(group) |>
  upper_95_CI = poisson.test(events, T = person_years)$conf.int[2]) |> ungroup()
 readr::write_csv(rates_30, file.path(OUTPUT_DIR, "incidence_rates_30_day.csv"))
 all_models <- list(crude = cox_crude, primary = cox_adjusted, minimal = cox_minimal,
- full = cox_full, stratified = cox_stratified, day30 = cox_adjusted_30,
+ full = cox_full, day30 = cox_adjusted_30,
  IPTW = cox_iptw, IPTW_adjusted = cox_iptw_doubly_adjusted)
 all_coefficients <- bind_rows(lapply(names(all_models), function(nm) {
  su <- summary(all_models[[nm]])
