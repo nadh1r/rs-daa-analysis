@@ -1165,14 +1165,6 @@ plot(w_na, fun = "cumhaz", col = c("#F8766D", "#00BFC4"), conf.int = FALSE,
 legend("bottomright", c("Historical control", "RS-DAA intervention"),
  col = c("#F8766D", "#00BFC4"), lty = 1, bty = "n")
 dev.off()
-w_km <- survfit(Surv(time_days, event) ~ group, data = iptw_data, weights = weight,
- stype = 1, ctype = 1)
-png(file.path(OUTPUT_DIR, "IPTW_weighted_Kaplan_Meier.png"), width = 2700, height = 1800, res = 300)
-plot(w_km, col = c("#F8766D", "#00BFC4"), conf.int = FALSE, xlim = c(0,365),
- xlab = "Days from HCV antibody-positive date", ylab = "Proportion not yet started DAA")
-legend("topright", c("Historical control", "RS-DAA intervention"),
- col = c("#F8766D", "#00BFC4"), lty = 1, bty = "n")
-dev.off()
 weight_distribution <- function(w, label) tibble(stage = label, n = length(w),
  min = min(w), p01 = quantile(w, .01), p05 = quantile(w, .05), median = median(w),
  mean = mean(w), p95 = quantile(w, .95), p99 = quantile(w, .99), max = max(w),
